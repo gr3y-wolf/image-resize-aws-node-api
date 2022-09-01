@@ -1,0 +1,46 @@
+service: xana-media-processing-node
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  stackName: xana-media-handler-node
+  stage: dev
+  region: us-east-1
+
+  iam:
+    role: arn:aws:iam::845847047647:role/mohneesh-transcoder-role-for-lambda
+
+  environment:
+    ACCESS_KEY_ID: AKIA4J4DJVXPY3ZJFXNS
+    ACCESS_SECRET: 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
+package:
+  #  individually: true
+  excludeDevDependencies: true
+  patterns:
+    - "!node_modules/**"
+    - "!*.json"
+    - "src/"
+
+
+
+functions:
+  dev-xana-compress-image:
+    name: dev-xana-dynamic-image-compression
+    runtime: nodejs14.x
+    memorySize: 2048
+    description: This lambda cretes compressed images for serving in XANA application
+    handler: src/handlers/lib/index.handler
+    events:
+      - http:
+          path: /compress/{image}
+          method: get
+    timeout: 20
+    layers:
+      - arn:aws:lambda:us-east-1:845847047647:layer:commonLibs14:7
+    environment:
+      ACCESSKEYID: AKIA4J4DJVXPY3ZJFXNS
+      SECRETACCESSKEY: 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
+      BUCKET: api-test-xana
+      REGION: us-east-1
+      PREFIX_PATH_DEV: apitestxana/input/images
+      PREFIX_PATH_PROD: Defaults
